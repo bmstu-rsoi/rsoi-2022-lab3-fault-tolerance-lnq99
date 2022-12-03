@@ -2,7 +2,7 @@ version: "3"
 services:
   postgres:
     image: library/postgres:13
-    container_name: postgres
+    container_name: db
     restart: on-failure
     environment:
       POSTGRES_USER: postgres
@@ -14,7 +14,47 @@ services:
     ports:
       - "5432:5432"
 
-# TODO добавить сервисы
+  bonus:
+    container_name: bonus
+    build:
+      context: src/bonus
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+    ports:
+      - "8050:8050"
+
+  flight:
+    container_name: flight
+    build:
+      context: src/flight
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+    ports:
+      - "8060:8060"
+
+  ticket:
+    container_name: ticket
+    build:
+      context: src/ticket
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+    ports:
+      - "8070:8070"
+
+  gateway:
+    container_name: gateway
+    build:
+      context: src/gateway
+      dockerfile: Dockerfile
+    depends_on:
+      - bonus
+      - flight
+      - ticket
+    ports:
+      - "8080:8080"
 
 volumes:
   db-data:
