@@ -20,7 +20,7 @@ type Flight struct {
 
 type FlightResponse struct {
 	// Дата и время вылета
-	Date string `json:"date,omitempty"`
+	Date time.Time `json:"date,omitempty"`
 
 	// Номер полета
 	FlightNumber string `json:"flightNumber,omitempty"`
