@@ -57,7 +57,7 @@ type PrivilegeInfoResponse struct {
 
 type PrivilegeShortInfo struct {
 	// Баланс бонусного счета
-	Balance string `json:"balance,omitempty"`
+	Balance int32 `json:"balance,omitempty"`
 
 	// Статус в бонусной программе
 	Status PrivilegeShortInfoStatus `json:"status,omitempty"`
