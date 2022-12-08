@@ -1,6 +1,8 @@
 package services
 
 import (
+	"net/http"
+
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -13,6 +15,8 @@ var (
 	BonusServiceIP  = ""
 	FlightServiceIP = ""
 	TicketServiceIP = ""
+	Client          = &http.Client{}
+	UsernameHeader  = "X-User-Name"
 )
 
 type Endpoint struct {

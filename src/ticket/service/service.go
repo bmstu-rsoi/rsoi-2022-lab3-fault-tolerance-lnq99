@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math"
 	"net/http"
+
 	"ticket/model"
 	"ticket/repository"
 
@@ -122,6 +124,13 @@ func (s *serviceImpl) CreateTicket(ctx context.Context, username string, ticketR
 		if err != nil {
 			return nil, err
 		}
+		if res.StatusCode == http.StatusServiceUnavailable {
+			s.repo.DeleteTicket(ctx, repository.DeleteTicketParams{
+				Username:  t.Username,
+				TicketUid: t.TicketUid,
+			})
+			return nil, errors.New("Bonus Service unavailable")
+		}
 		defer res.Body.Close()
 
 		err = json.NewDecoder(res.Body).Decode(&privilege)
@@ -172,6 +181,13 @@ func (s *serviceImpl) CreateTicket(ctx context.Context, username string, ticketR
 		res, err := client.Do(req)
 		if err != nil {
 			return nil, err
+		}
+		if res.StatusCode == http.StatusServiceUnavailable {
+			s.repo.DeleteTicket(ctx, repository.DeleteTicketParams{
+				Username:  t.Username,
+				TicketUid: t.TicketUid,
+			})
+			return nil, errors.New("Bonus Service unavailable")
 		}
 		defer res.Body.Close()
 	}

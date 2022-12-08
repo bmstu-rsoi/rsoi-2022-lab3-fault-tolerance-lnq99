@@ -1,7 +1,9 @@
 package controller
 
 import (
+	"log"
 	"net/http"
+
 	"ticket/model"
 	"ticket/service"
 
@@ -36,8 +38,10 @@ func (c *GinController) CreateTicket(ctx *gin.Context) {
 	username := ctx.GetHeader("X-User-Name")
 
 	r, err := c.service.CreateTicket(ctx, username, &ticketReq)
+	log.Println(r, err)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errors.ErrorResponse{err.Error()})
+		// TODO: check StatusBadRequest
+		ctx.JSON(http.StatusServiceUnavailable, errors.ErrorResponse{err.Error()})
 	} else {
 		ctx.JSON(http.StatusOK, r)
 	}
