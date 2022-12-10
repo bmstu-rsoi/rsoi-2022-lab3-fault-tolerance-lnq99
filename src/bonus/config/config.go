@@ -4,6 +4,7 @@ import (
 	"flag"
 	"os"
 
+	"github.com/lnq99/rsoi-2022-lab3-fault-tolerance-lnq99/src/pkg/util"
 	"gopkg.in/yaml.v3"
 )
 
@@ -33,16 +34,9 @@ func LoadConfig() (c *Config, err error) {
 		return
 	}
 
-	c.Server.Host = getEnv("HOST", c.Server.Host)
-	c.Server.Port = getEnv("PORT", c.Server.Port)
-	c.Db.Url = getEnv("DB_URL", c.Db.Url)
+	c.Server.Host = util.GetEnv("HOST", c.Server.Host)
+	c.Server.Port = util.GetEnv("PORT", c.Server.Port)
+	c.Db.Url = util.GetEnv("DB_URL", c.Db.Url)
 
 	return
-}
-
-func getEnv(key, fallback string) string {
-	if value, ok := os.LookupEnv(key); ok {
-		return value
-	}
-	return fallback
 }

@@ -13,6 +13,7 @@ type Querier interface {
 	DeleteTicket(ctx context.Context, arg DeleteTicketParams) error
 	GetTicket(ctx context.Context, arg GetTicketParams) (Ticket, error)
 	ListTickets(ctx context.Context, username string) ([]Ticket, error)
+	UpdateTicketStatus(ctx context.Context, arg UpdateTicketStatusParams) error
 }
 
 var _ Querier = (*Queries)(nil)

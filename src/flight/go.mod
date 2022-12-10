@@ -6,7 +6,7 @@ require (
 	github.com/gin-contrib/size v0.0.0-20220829131622-0fc0bc875336
 	github.com/gin-gonic/gin v1.8.1
 	github.com/jackc/pgx/v5 v5.1.1
-	github.com/lnq99/rsoi-2022-lab2-microservices-lnq99/src/pkg v0.0.0-20221201000048-0e92e5250756
+	github.com/lnq99/rsoi-2022-lab3-fault-tolerance-lnq99/src/pkg v0.0.0-20221208160507-974a041bbbbd
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -16,6 +16,7 @@ require (
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-playground/validator/v10 v10.10.0 // indirect
 	github.com/goccy/go-json v0.9.7 // indirect
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20200714003250-2b9c44734f2b // indirect
 	github.com/json-iterator/go v1.1.12 // indirect

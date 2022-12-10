@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"math"
 	"net/http"
 
-	"ticket/model"
 	"ticket/repository"
+
+	errors "github.com/lnq99/rsoi-2022-lab3-fault-tolerance-lnq99/src/pkg/error"
+	"github.com/lnq99/rsoi-2022-lab3-fault-tolerance-lnq99/src/pkg/model"
 
 	"github.com/google/uuid"
 )
@@ -125,11 +126,11 @@ func (s *serviceImpl) CreateTicket(ctx context.Context, username string, ticketR
 			return nil, err
 		}
 		if res.StatusCode == http.StatusServiceUnavailable {
-			s.repo.DeleteTicket(ctx, repository.DeleteTicketParams{
-				Username:  t.Username,
+			s.repo.UpdateTicketStatus(ctx, repository.UpdateTicketStatusParams{
 				TicketUid: t.TicketUid,
+				Status:    "CANCEL",
 			})
-			return nil, errors.New("Bonus Service unavailable")
+			return nil, errors.BonusServiceUnavailable
 		}
 		defer res.Body.Close()
 
@@ -187,7 +188,7 @@ func (s *serviceImpl) CreateTicket(ctx context.Context, username string, ticketR
 				Username:  t.Username,
 				TicketUid: t.TicketUid,
 			})
-			return nil, errors.New("Bonus Service unavailable")
+			return nil, errors.BonusServiceUnavailable
 		}
 		defer res.Body.Close()
 	}

@@ -1,9 +1,11 @@
 package service
 
 import (
-	"bonus/model"
-	"bonus/repository"
 	"context"
+
+	"bonus/repository"
+
+	"github.com/lnq99/rsoi-2022-lab3-fault-tolerance-lnq99/src/pkg/model"
 )
 
 type Service interface {

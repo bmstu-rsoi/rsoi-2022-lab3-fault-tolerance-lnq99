@@ -118,3 +118,19 @@ func (q *Queries) ListTickets(ctx context.Context, username string) ([]Ticket, e
 	}
 	return items, nil
 }
+
+const updateTicketStatus = `-- name: UpdateTicketStatus :exec
+UPDATE ticket
+SET status=$2
+WHERE ticket_uid=$1
+`
+
+type UpdateTicketStatusParams struct {
+	TicketUid uuid.UUID `json:"ticketUid"`
+	Status    string    `json:"status"`
+}
+
+func (q *Queries) UpdateTicketStatus(ctx context.Context, arg UpdateTicketStatusParams) error {
+	_, err := q.db.ExecContext(ctx, updateTicketStatus, arg.TicketUid, arg.Status)
+	return err
+}

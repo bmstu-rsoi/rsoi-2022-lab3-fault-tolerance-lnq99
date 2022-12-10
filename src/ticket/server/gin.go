@@ -6,7 +6,7 @@ import (
 	"ticket/controller"
 	"ticket/service"
 
-	"github.com/lnq99/rsoi-2022-lab2-microservices-lnq99/src/pkg/server"
+	"github.com/lnq99/rsoi-2022-lab3-fault-tolerance-lnq99/src/pkg/server"
 
 	limits "github.com/gin-contrib/size"
 	"github.com/gin-gonic/gin"

@@ -7,7 +7,7 @@ require (
 	github.com/gin-gonic/gin v1.8.1
 	github.com/google/uuid v1.3.0
 	github.com/jackc/pgx/v5 v5.1.1
-	github.com/lnq99/rsoi-2022-lab2-microservices-lnq99/src/pkg v0.0.0-20221201000048-0e92e5250756
+	github.com/lnq99/rsoi-2022-lab3-fault-tolerance-lnq99/src/pkg v0.0.0-20221208160507-974a041bbbbd
 	gopkg.in/yaml.v3 v3.0.1
 )
 

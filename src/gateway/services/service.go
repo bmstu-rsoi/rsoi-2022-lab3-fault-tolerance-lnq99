@@ -1,13 +1,13 @@
 package services
 
 import (
+	"encoding/json"
+	"io"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
-)
-
-const (
-	DefaultIP = "localhost"
+	errors "github.com/lnq99/rsoi-2022-lab3-fault-tolerance-lnq99/src/pkg/error"
+	"github.com/lnq99/rsoi-2022-lab3-fault-tolerance-lnq99/src/pkg/model"
 )
 
 var (
@@ -16,7 +16,7 @@ var (
 	FlightServiceIP = ""
 	TicketServiceIP = ""
 	Client          = &http.Client{}
-	UsernameHeader  = "X-User-Name"
+	UsernameHeader  = model.UsernameHeader
 )
 
 type Endpoint struct {
@@ -50,4 +50,19 @@ func (s FiberServer) RegisterService(service Service) {
 	for _, e := range service.Endpoints {
 		s.RegisterRoute(&e, prefix)
 	}
+}
+
+func fiberProcessResponse[T any](c *fiber.Ctx, status int, body io.ReadCloser, err error) error {
+	var r T
+
+	if err == nil {
+		err = json.NewDecoder(body).Decode(&r)
+		body.Close()
+	}
+
+	c.Status(status)
+	if err != nil {
+		return c.JSON(errors.ToErrResponse(err))
+	}
+	return c.JSON(r)
 }

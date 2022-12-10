@@ -1,9 +1,12 @@
 package controller
 
 import (
-	"bonus/model"
-	"bonus/service"
+	"log"
 	"net/http"
+
+	"bonus/service"
+
+	"github.com/lnq99/rsoi-2022-lab3-fault-tolerance-lnq99/src/pkg/model"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,6 +22,7 @@ func NewGinController(service service.Service) *GinController {
 func (c *GinController) ListPrivilegeHistories(ctx *gin.Context) {
 	username := ctx.GetHeader("X-User-Name")
 	r := c.service.GetPrivilege(ctx, username)
+	log.Println(r)
 	ctx.JSON(http.StatusOK, r)
 }
 

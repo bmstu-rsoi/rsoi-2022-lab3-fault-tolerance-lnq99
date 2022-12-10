@@ -14,3 +14,8 @@ RETURNING *;
 -- name: DeleteTicket :exec
 DELETE FROM ticket
 WHERE username=$1 AND ticket_uid=$2;
+
+-- name: UpdateTicketStatus :exec
+UPDATE ticket
+SET status=$2
+WHERE ticket_uid=$1;

@@ -4,10 +4,11 @@ import (
 	"log"
 	"net/http"
 
-	"ticket/model"
 	"ticket/service"
 
-	errors "github.com/lnq99/rsoi-2022-lab2-microservices-lnq99/src/pkg/error"
+	"github.com/lnq99/rsoi-2022-lab3-fault-tolerance-lnq99/src/pkg/model"
+
+	errors "github.com/lnq99/rsoi-2022-lab3-fault-tolerance-lnq99/src/pkg/error"
 
 	"github.com/gin-gonic/gin"
 )

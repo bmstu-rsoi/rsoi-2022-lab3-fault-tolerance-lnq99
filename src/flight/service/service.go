@@ -2,8 +2,10 @@ package service
 
 import (
 	"context"
-	"flight/model"
+
 	"flight/repository"
+
+	"github.com/lnq99/rsoi-2022-lab3-fault-tolerance-lnq99/src/pkg/model"
 )
 
 type Service interface {
@@ -22,8 +24,6 @@ func NewService(repo repository.Repo) Service {
 }
 
 func (s *serviceImpl) ListFlights(ctx context.Context, page, size int32) *model.PaginationResponse {
-	//flight := s.repo.SelectFlightsWithOffsetLimit((page-1)*size, size)
-
 	res := model.PaginationResponse{
 		TotalElements: 0,
 		Page:          page,

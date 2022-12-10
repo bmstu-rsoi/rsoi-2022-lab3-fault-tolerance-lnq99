@@ -4,9 +4,9 @@ import (
 	"flight/service"
 	"net/http"
 
-	errors "github.com/lnq99/rsoi-2022-lab2-microservices-lnq99/src/pkg/error"
+	errors "github.com/lnq99/rsoi-2022-lab3-fault-tolerance-lnq99/src/pkg/error"
 
-	"github.com/lnq99/rsoi-2022-lab2-microservices-lnq99/src/pkg/util"
+	"github.com/lnq99/rsoi-2022-lab3-fault-tolerance-lnq99/src/pkg/util"
 
 	"github.com/gin-gonic/gin"
 )
