@@ -15,17 +15,11 @@ type Ticket struct {
 	Status       string    `json:"status"`
 }
 
-type TicketPurchaseResponseStatus string
-type TicketResponseStatus string
+type TicketPurchaseStatus string
 
 const (
-	TicketPurchaseResponseStatusCANCELED TicketPurchaseResponseStatus = "CANCELED"
-	TicketPurchaseResponseStatusPAID     TicketPurchaseResponseStatus = "PAID"
-)
-
-const (
-	TicketResponseStatusCANCELED TicketResponseStatus = "CANCELED"
-	TicketResponseStatusPAID     TicketResponseStatus = "PAID"
+	TicketPurchaseStatusCANCELED TicketPurchaseStatus = "CANCELED"
+	TicketPurchaseStatusPAID     TicketPurchaseStatus = "PAID"
 )
 
 type TicketPurchaseRequest struct {
@@ -56,11 +50,12 @@ type TicketPurchaseResponse struct {
 	PaidByMoney int32 `json:"paidByMoney"`
 
 	// Стоимость
-	Price     int32              `json:"price"`
+	Price int32 `json:"price"`
+
 	Privilege PrivilegeShortInfo `json:"privilege"`
 
 	// Статус билета
-	Status TicketPurchaseResponseStatus `json:"status"`
+	Status TicketPurchaseStatus `json:"status"`
 
 	// UUID билета
 	TicketUid string `json:"ticketUid"`
@@ -83,7 +78,7 @@ type TicketResponse struct {
 	Price int32 `json:"price,omitempty"`
 
 	// Статус билета
-	Status TicketResponseStatus `json:"status,omitempty"`
+	Status TicketPurchaseStatus `json:"status,omitempty"`
 
 	// UUID билета
 	TicketUid string `json:"ticketUid,omitempty"`

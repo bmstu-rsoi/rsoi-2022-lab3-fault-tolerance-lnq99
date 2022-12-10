@@ -23,8 +23,7 @@ type PrivilegeHistory struct {
 }
 
 type BalanceHistoryOperationType string
-type PrivilegeInfoResponseStatus string
-type PrivilegeShortInfoStatus string
+type PrivilegeInfoStatus string
 
 const (
 	DEBITTHEACCOUNT BalanceHistoryOperationType = "DEBIT_THE_ACCOUNT"
@@ -33,15 +32,9 @@ const (
 )
 
 const (
-	PrivilegeInfoResponseStatusBRONZE PrivilegeInfoResponseStatus = "BRONZE"
-	PrivilegeInfoResponseStatusGOLD   PrivilegeInfoResponseStatus = "GOLD"
-	PrivilegeInfoResponseStatusSILVER PrivilegeInfoResponseStatus = "SILVER"
-)
-
-const (
-	PrivilegeShortInfoStatusBRONZE PrivilegeShortInfoStatus = "BRONZE"
-	PrivilegeShortInfoStatusGOLD   PrivilegeShortInfoStatus = "GOLD"
-	PrivilegeShortInfoStatusSILVER PrivilegeShortInfoStatus = "SILVER"
+	PrivilegeInfoStatusBRONZE PrivilegeInfoStatus = "BRONZE"
+	PrivilegeInfoStatusGOLD   PrivilegeInfoStatus = "GOLD"
+	PrivilegeInfoStatusSILVER PrivilegeInfoStatus = "SILVER"
 )
 
 type PrivilegeInfoResponse struct {
@@ -52,7 +45,7 @@ type PrivilegeInfoResponse struct {
 	History []BalanceHistory `json:"history"`
 
 	// Статус в бонусной программе
-	Status PrivilegeInfoResponseStatus `json:"status"`
+	Status PrivilegeInfoStatus `json:"status"`
 }
 
 type PrivilegeShortInfo struct {
@@ -60,7 +53,7 @@ type PrivilegeShortInfo struct {
 	Balance int32 `json:"balance,omitempty"`
 
 	// Статус в бонусной программе
-	Status PrivilegeShortInfoStatus `json:"status,omitempty"`
+	Status PrivilegeInfoStatus `json:"status,omitempty"`
 }
 
 type BalanceHistory struct {
