@@ -1,10 +1,11 @@
 package server
 
 import (
+	"net/http"
+
 	"bonus/config"
 	"bonus/controller"
 	"bonus/service"
-	"net/http"
 
 	"github.com/lnq99/rsoi-2022-lab3-fault-tolerance-lnq99/src/pkg/server"
 
@@ -41,9 +42,11 @@ func NewGinServer(service service.Service, cfg *config.ServerConfig) server.Serv
 func (s *GinServer) SetupRouter() {
 	r := s.engine
 	v1 := r.Group("api/v1")
+	p := v1.Group("privilege")
 	{
-		v1.GET("privilege", s.handlers.ListPrivilegeHistories)
-		v1.POST("privilege", s.handlers.UpdateBalanceAndHistory)
+		p.GET("", s.handlers.ListPrivilegeHistories)
+		p.POST("", s.handlers.UpdateBalanceAndHistory)
+		p.DELETE(":ticketUid", s.handlers.RevertBalanceAndHistory)
 	}
 	r.GET("/manage/health", func(c *gin.Context) {
 		c.Status(http.StatusOK)

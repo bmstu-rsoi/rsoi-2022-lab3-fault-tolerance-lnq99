@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"log"
 	"net/http"
 
 	"bonus/service"
@@ -10,6 +9,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
+
+const UsernameHeader = model.UsernameHeader
 
 type GinController struct {
 	service service.Service
@@ -20,14 +21,13 @@ func NewGinController(service service.Service) *GinController {
 }
 
 func (c *GinController) ListPrivilegeHistories(ctx *gin.Context) {
-	username := ctx.GetHeader("X-User-Name")
+	username := ctx.GetHeader(UsernameHeader)
 	r := c.service.GetPrivilege(ctx, username)
-	log.Println(r)
 	ctx.JSON(http.StatusOK, r)
 }
 
 func (c *GinController) UpdateBalanceAndHistory(ctx *gin.Context) {
-	username := ctx.GetHeader("X-User-Name")
+	username := ctx.GetHeader(UsernameHeader)
 
 	history := model.BalanceHistory{}
 	if err := ctx.ShouldBindJSON(&history); err != nil {
@@ -36,8 +36,19 @@ func (c *GinController) UpdateBalanceAndHistory(ctx *gin.Context) {
 	}
 
 	err := c.service.UpdateBalanceAndHistory(ctx, username, history)
-	if err != nil {
+	if err == nil {
 		ctx.Status(http.StatusOK)
+	} else {
+		ctx.Status(http.StatusInternalServerError)
+	}
+}
+
+func (c *GinController) RevertBalanceAndHistory(ctx *gin.Context) {
+	ticketUid := ctx.Param("ticketUid")
+
+	err := c.service.RevertBalanceAndHistory(ctx, ticketUid)
+	if err == nil {
+		ctx.Status(http.StatusNoContent)
 	} else {
 		ctx.Status(http.StatusInternalServerError)
 	}

@@ -1,9 +1,8 @@
 FROM golang:alpine as build-stage
 WORKDIR /app
-COPY go.mod ./
+COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN go mod tidy
 RUN go build -o api ./main.go
 
 FROM alpine as production-stage

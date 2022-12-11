@@ -1,11 +1,14 @@
 package main
 
 import (
+	"database/sql"
+
 	"bonus/config"
 	"bonus/repository"
 	"bonus/server"
 	"bonus/service"
-	"database/sql"
+
+	"github.com/lnq99/rsoi-2022-lab3-fault-tolerance-lnq99/src/pkg/util"
 )
 
 func main() {
@@ -17,7 +20,7 @@ func main() {
 		panic(err)
 	}
 
-	if db, err = repository.NewSqlDatabase(&cfg.Db); err != nil {
+	if db, err = util.NewSqlDatabase(cfg.Db.Url); err != nil {
 		panic(err)
 	}
 	defer db.Close()

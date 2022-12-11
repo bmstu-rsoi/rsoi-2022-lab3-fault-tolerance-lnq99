@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"io"
 	"net/http"
 	"time"
@@ -12,11 +13,11 @@ import (
 var (
 	CbSetting = breaker.Settings{
 		Name:        "Ticket Get",
-		MaxRequests: 0,
+		MaxRequests: 1,
 		Interval:    10 * time.Second,
-		Timeout:     3 * time.Second,
+		Timeout:     2 * time.Second,
 		ReadyToTrip: func(counts breaker.Counts) bool {
-			return counts.ConsecutiveFailures > 5
+			return counts.ConsecutiveFailures > 4
 		},
 		OnStateChange: nil,
 		IsSuccessful:  nil,
@@ -37,7 +38,10 @@ func CallServiceWithCircuitBreaker(
 	header map[string]string, body io.Reader) (ServiceResponse, error) {
 
 	res, err := cb.Execute(func() (interface{}, error) {
-		req, _ := http.NewRequest(method, url, body)
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+		req, _ := http.NewRequestWithContext(ctx, method, url, body)
+
 		for k, v := range header {
 			req.Header.Set(k, v)
 		}
@@ -51,6 +55,10 @@ func CallServiceWithCircuitBreaker(
 			body:   res.Body,
 		}, nil
 	})
+
+	if err == breaker.ErrOpenState {
+		return ServiceResponse{}, err
+	}
 
 	return res.(ServiceResponse), err
 }

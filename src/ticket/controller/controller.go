@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"log"
 	"net/http"
 
 	"ticket/service"
@@ -13,7 +12,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// GinController converts gin contexts to parameters.
+const UsernameHeader = model.UsernameHeader
+
 type GinController struct {
 	service service.Service
 }
@@ -23,7 +23,7 @@ func NewGinController(service service.Service) *GinController {
 }
 
 func (c *GinController) ListTickets(ctx *gin.Context) {
-	username := ctx.GetHeader("X-User-Name")
+	username := ctx.GetHeader(UsernameHeader)
 
 	r := c.service.ListTickets(ctx, username)
 	ctx.JSON(http.StatusOK, r)
@@ -36,10 +36,9 @@ func (c *GinController) CreateTicket(ctx *gin.Context) {
 		return
 	}
 
-	username := ctx.GetHeader("X-User-Name")
+	username := ctx.GetHeader(UsernameHeader)
 
 	r, err := c.service.CreateTicket(ctx, username, &ticketReq)
-	log.Println(r, err)
 	if err != nil {
 		// TODO: check StatusBadRequest
 		ctx.JSON(http.StatusServiceUnavailable, errors.ErrorResponse{err.Error()})
@@ -48,7 +47,7 @@ func (c *GinController) CreateTicket(ctx *gin.Context) {
 	}
 }
 func (c *GinController) GetTicket(ctx *gin.Context) {
-	username := ctx.GetHeader("X-User-Name")
+	username := ctx.GetHeader(UsernameHeader)
 	ticketUid := ctx.Param("ticketUid")
 
 	r := c.service.GetTicket(ctx, username, ticketUid)
@@ -60,7 +59,7 @@ func (c *GinController) GetTicket(ctx *gin.Context) {
 
 }
 func (c *GinController) DeleteTicket(ctx *gin.Context) {
-	username := ctx.GetHeader("X-User-Name")
+	username := ctx.GetHeader(UsernameHeader)
 	ticketUid := ctx.Param("ticketUid")
 
 	err := c.service.DeleteTicket(ctx, username, ticketUid)

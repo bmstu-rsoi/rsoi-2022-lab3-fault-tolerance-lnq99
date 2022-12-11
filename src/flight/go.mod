@@ -5,8 +5,8 @@ go 1.19
 require (
 	github.com/gin-contrib/size v0.0.0-20220829131622-0fc0bc875336
 	github.com/gin-gonic/gin v1.8.1
-	github.com/jackc/pgx/v5 v5.1.1
-	github.com/lnq99/rsoi-2022-lab3-fault-tolerance-lnq99/src/pkg v0.0.0-20221208160507-974a041bbbbd
+	github.com/jackc/pgx/v5 v5.2.0
+	github.com/lnq99/rsoi-2022-lab3-fault-tolerance-lnq99/src/pkg v0.0.0-20221210144115-98c6eafcbbb4
 	gopkg.in/yaml.v3 v3.0.1
 )
 

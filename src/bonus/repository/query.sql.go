@@ -61,6 +61,16 @@ func (q *Queries) CreatePrivilegeHistory(ctx context.Context, arg CreatePrivileg
 	return i, err
 }
 
+const deletePrivilegeHistory = `-- name: DeletePrivilegeHistory :exec
+DELETE FROM privilege_history
+WHERE ticket_uid=$1
+`
+
+func (q *Queries) DeletePrivilegeHistory(ctx context.Context, ticketUid uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deletePrivilegeHistory, ticketUid)
+	return err
+}
+
 const getPrivilege = `-- name: GetPrivilege :one
 SELECT id, username, status, balance FROM privilege
 WHERE username=$1 LIMIT 1
@@ -74,6 +84,42 @@ func (q *Queries) GetPrivilege(ctx context.Context, username string) (Privilege,
 		&i.Username,
 		&i.Status,
 		&i.Balance,
+	)
+	return i, err
+}
+
+const getPrivilegeById = `-- name: GetPrivilegeById :one
+SELECT id, username, status, balance FROM privilege
+WHERE id=$1 LIMIT 1
+`
+
+func (q *Queries) GetPrivilegeById(ctx context.Context, id int32) (Privilege, error) {
+	row := q.db.QueryRowContext(ctx, getPrivilegeById, id)
+	var i Privilege
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Status,
+		&i.Balance,
+	)
+	return i, err
+}
+
+const getPrivilegeHistory = `-- name: GetPrivilegeHistory :one
+SELECT id, privilege_id, ticket_uid, datetime, balance_diff, operation_type FROM privilege_history
+WHERE ticket_uid=$1 LIMIT 1
+`
+
+func (q *Queries) GetPrivilegeHistory(ctx context.Context, ticketUid uuid.UUID) (PrivilegeHistory, error) {
+	row := q.db.QueryRowContext(ctx, getPrivilegeHistory, ticketUid)
+	var i PrivilegeHistory
+	err := row.Scan(
+		&i.ID,
+		&i.PrivilegeID,
+		&i.TicketUid,
+		&i.Datetime,
+		&i.BalanceDiff,
+		&i.OperationType,
 	)
 	return i, err
 }
@@ -117,7 +163,6 @@ const updatePrivilegeBalance = `-- name: UpdatePrivilegeBalance :exec
 UPDATE privilege
 SET balance=$2
 WHERE username=$1
-RETURNING id
 `
 
 type UpdatePrivilegeBalanceParams struct {

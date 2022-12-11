@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math"
 	"net/http"
+	"time"
 
 	"ticket/repository"
 
@@ -16,7 +17,10 @@ import (
 	"github.com/google/uuid"
 )
 
-const GatewayUrl = "http://gateway:8080"
+const (
+	GatewayUrl     = "http://gateway:8080"
+	UsernameHeader = model.UsernameHeader
+)
 
 type Service interface {
 	ListTickets(ctx context.Context, username string) []*model.TicketResponse
@@ -53,7 +57,7 @@ func toTicketResponse(t *model.Ticket) *model.TicketResponse {
 		FlightNumber: t.FlightNumber,
 		FromAirport:  flight.FromAirport,
 		Price:        t.Price,
-		Status:       model.TicketResponseStatus(t.Status),
+		Status:       model.TicketPurchaseStatus(t.Status),
 		TicketUid:    t.TicketUid.String(),
 		ToAirport:    flight.ToAirport,
 	}
@@ -89,22 +93,12 @@ func (s *serviceImpl) GetTicket(ctx context.Context, username, ticketUid string)
 }
 
 func (s *serviceImpl) CreateTicket(ctx context.Context, username string, ticketReq *model.TicketPurchaseRequest) (*model.TicketPurchaseResponse, error) {
-	ticketUid, _ := uuid.NewUUID()
-	t, err := s.repo.CreateTicket(ctx, repository.CreateTicketParams{
-		TicketUid:    ticketUid,
-		Username:     username,
-		FlightNumber: ticketReq.FlightNumber,
-		Price:        ticketReq.Price,
-		Status:       "PAID",
-	})
-
 	var url string
+	client := &http.Client{Timeout: 1 * time.Second}
 	flight := model.FlightResponse{}
-	privilege := model.PrivilegeInfoResponse{}
-	client := &http.Client{}
 
 	{
-		url = fmt.Sprintf("%s/%s/%s", GatewayUrl, "api/v1", "flights"+"/"+t.FlightNumber)
+		url = fmt.Sprintf("%s/%s/%s", GatewayUrl, "api/v1", "flights"+"/"+ticketReq.FlightNumber)
 		req, _ := http.NewRequest("GET", url, nil)
 		res, err := client.Do(req)
 		if err != nil {
@@ -112,23 +106,39 @@ func (s *serviceImpl) CreateTicket(ctx context.Context, username string, ticketR
 		}
 		defer res.Body.Close()
 
+		if res.StatusCode == http.StatusServiceUnavailable {
+			return nil, errors.FlightServiceUnavailable
+		}
+
 		err = json.NewDecoder(res.Body).Decode(&flight)
 		if err != nil {
 			return nil, err
 		}
 	}
+
+	ticketUid, _ := uuid.NewUUID()
+	t, err := s.repo.CreateTicket(ctx, repository.CreateTicketParams{
+		TicketUid:    ticketUid,
+		Username:     username,
+		FlightNumber: ticketReq.FlightNumber,
+		Price:        ticketReq.Price,
+		Status:       string(model.TicketPurchaseStatusPAID),
+	})
+
+	privilege := model.PrivilegeInfoResponse{}
+
 	{
 		url = fmt.Sprintf("%s/%s/%s", GatewayUrl, "api/v1", "privilege")
 		req, _ := http.NewRequest("GET", url, nil)
-		req.Header.Set("X-User-Name", t.Username)
+		req.Header.Set(UsernameHeader, t.Username)
 		res, err := client.Do(req)
 		if err != nil {
 			return nil, err
 		}
 		if res.StatusCode == http.StatusServiceUnavailable {
-			s.repo.UpdateTicketStatus(ctx, repository.UpdateTicketStatusParams{
+			s.repo.DeleteTicket(ctx, repository.DeleteTicketParams{
+				Username:  username,
 				TicketUid: t.TicketUid,
-				Status:    "CANCEL",
 			})
 			return nil, errors.BonusServiceUnavailable
 		}
@@ -149,9 +159,9 @@ func (s *serviceImpl) CreateTicket(ctx context.Context, username string, ticketR
 		Price:         t.Price,
 		Privilege: model.PrivilegeShortInfo{
 			Balance: privilege.Balance,
-			Status:  model.PrivilegeShortInfoStatus(privilege.Status),
+			Status:  privilege.Status,
 		},
-		Status:    model.TicketPurchaseResponseStatus(t.Status),
+		Status:    model.TicketPurchaseStatus(t.Status),
 		TicketUid: t.TicketUid.String(),
 		ToAirport: flight.ToAirport,
 	}
@@ -166,11 +176,11 @@ func (s *serviceImpl) CreateTicket(ctx context.Context, username string, ticketR
 		r.PaidByMoney = t.Price - r.PaidByBonuses
 		r.Privilege.Balance = r.Privilege.Balance - r.PaidByBonuses
 		balanceHistory.BalanceDiff = -r.PaidByBonuses
-		balanceHistory.OperationType = "DEBIT_THE_ACCOUNT"
+		balanceHistory.OperationType = model.DEBITTHEACCOUNT
 	} else {
 		r.Privilege.Balance = r.Privilege.Balance + t.Price/10
 		balanceHistory.BalanceDiff = t.Price / 10
-		balanceHistory.OperationType = "FILL_IN_BALANCE"
+		balanceHistory.OperationType = model.FILLINBALANCE
 	}
 
 	{
@@ -178,14 +188,14 @@ func (s *serviceImpl) CreateTicket(ctx context.Context, username string, ticketR
 		body, _ := json.Marshal(balanceHistory)
 
 		req, _ := http.NewRequest("POST", url, bytes.NewReader(body))
-		req.Header.Set("X-User-Name", t.Username)
+		req.Header.Set(UsernameHeader, t.Username)
 		res, err := client.Do(req)
 		if err != nil {
 			return nil, err
 		}
 		if res.StatusCode == http.StatusServiceUnavailable {
 			s.repo.DeleteTicket(ctx, repository.DeleteTicketParams{
-				Username:  t.Username,
+				Username:  username,
 				TicketUid: t.TicketUid,
 			})
 			return nil, errors.BonusServiceUnavailable
@@ -201,9 +211,21 @@ func (s *serviceImpl) DeleteTicket(ctx context.Context, username, ticketUid stri
 	if err != nil {
 		return err
 	}
-	err = s.repo.DeleteTicket(ctx, repository.DeleteTicketParams{
-		Username:  username,
+
+	err = s.repo.UpdateTicketStatus(ctx, repository.UpdateTicketStatusParams{
 		TicketUid: uid,
+		Status:    string(model.TicketPurchaseStatusCANCELED),
 	})
-	return err
+
+	if err != nil {
+		return err
+	}
+
+	client := &http.Client{Timeout: 1 * time.Second}
+	url := fmt.Sprintf("%s/%s/%s/%s", GatewayUrl, "api/v1", "privilege", ticketUid)
+	req, _ := http.NewRequest("DELETE", url, nil)
+	req.Header.Set(UsernameHeader, username)
+	client.Do(req)
+
+	return nil
 }
