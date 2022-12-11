@@ -94,7 +94,7 @@ func (s *serviceImpl) GetTicket(ctx context.Context, username, ticketUid string)
 
 func (s *serviceImpl) CreateTicket(ctx context.Context, username string, ticketReq *model.TicketPurchaseRequest) (*model.TicketPurchaseResponse, error) {
 	var url string
-	client := &http.Client{Timeout: 1 * time.Second}
+	client := &http.Client{Timeout: 2 * time.Second}
 	flight := model.FlightResponse{}
 
 	{
@@ -221,7 +221,7 @@ func (s *serviceImpl) DeleteTicket(ctx context.Context, username, ticketUid stri
 		return err
 	}
 
-	client := &http.Client{Timeout: 1 * time.Second}
+	client := &http.Client{Timeout: 2 * time.Second}
 	url := fmt.Sprintf("%s/%s/%s/%s", GatewayUrl, "api/v1", "privilege", ticketUid)
 	req, _ := http.NewRequest("DELETE", url, nil)
 	req.Header.Set(UsernameHeader, username)
